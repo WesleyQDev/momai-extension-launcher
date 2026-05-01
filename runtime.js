@@ -215,25 +215,7 @@ function scanUserSubfolders() {
 
   const items = []
   const seen = new Set()
-
-  try {
-    const entries = fs.readdirSync(userDir, { withFileTypes: true })
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue
-      if (entry.name.startsWith('.') || entry.name === 'AppData') continue
-      const fullPath = path.join(userDir, entry.name)
-      if (seen.has(fullPath)) continue
-      seen.add(fullPath)
-      items.push({
-        name: entry.name,
-        path: fullPath,
-        type: 'Pasta',
-        category: inferCategory(entry.name, userDir),
-      })
-    }
-  } catch {
-    /* skip */
-  }
+  walkUserFolder(userDir, items, seen, 'Sistema', 2)
   return items
 }
 
@@ -243,35 +225,7 @@ function scanUserDocuments() {
 
   const items = []
   const seen = new Set()
-
-  try {
-    const entries = fs.readdirSync(docsDir, { withFileTypes: true })
-    for (const entry of entries) {
-      const fullPath = path.join(docsDir, entry.name)
-      if (seen.has(fullPath)) continue
-
-      if (entry.isDirectory()) {
-        seen.add(fullPath)
-        items.push({
-          name: entry.name,
-          path: fullPath,
-          type: 'Pasta',
-          category: 'Documentos',
-        })
-      } else if (entry.isFile() && /\.(docx?|xlsx?|pptx?|pdf|txt|md|csv|json|xml)$/i.test(entry.name)) {
-        seen.add(fullPath)
-        const displayName = entry.name.replace(/\.[^.]+$/, '')
-        items.push({
-          name: displayName,
-          path: fullPath,
-          type: 'Arquivo',
-          category: inferCategory(displayName, docsDir),
-        })
-      }
-    }
-  } catch {
-    /* skip */
-  }
+  walkUserFolder(docsDir, items, seen, 'Documentos', 3)
   return items
 }
 
@@ -281,35 +235,7 @@ function scanUserDownloads() {
 
   const items = []
   const seen = new Set()
-
-  try {
-    const entries = fs.readdirSync(dlDir, { withFileTypes: true })
-    for (const entry of entries) {
-      const fullPath = path.join(dlDir, entry.name)
-      if (seen.has(fullPath)) continue
-
-      if (entry.isDirectory()) {
-        seen.add(fullPath)
-        items.push({
-          name: entry.name,
-          path: fullPath,
-          type: 'Pasta',
-          category: 'Downloads',
-        })
-      } else if (entry.isFile() && /\.(zip|rar|7z|exe|msi|dmg|pkg|iso|img|pdf|docx?|xlsx?|jpg|jpeg|png|gif|mp4|mkv|mp3|wav)$/i.test(entry.name)) {
-        seen.add(fullPath)
-        const displayName = entry.name.replace(/\.[^.]+$/, '')
-        items.push({
-          name: displayName,
-          path: fullPath,
-          type: 'Arquivo',
-          category: inferCategory(displayName, dlDir),
-        })
-      }
-    }
-  } catch {
-    /* skip */
-  }
+  walkUserFolder(dlDir, items, seen, 'Downloads', 3)
   return items
 }
 
@@ -319,35 +245,7 @@ function scanUserDesktopFiles() {
 
   const items = []
   const seen = new Set()
-
-  try {
-    const entries = fs.readdirSync(deskDir, { withFileTypes: true })
-    for (const entry of entries) {
-      const fullPath = path.join(deskDir, entry.name)
-      if (seen.has(fullPath)) continue
-
-      if (entry.isDirectory()) {
-        seen.add(fullPath)
-        items.push({
-          name: entry.name,
-          path: fullPath,
-          type: 'Pasta',
-          category: 'Desktop',
-        })
-      } else if (entry.isFile() && /\.(docx?|xlsx?|pptx?|pdf|txt|md|csv|jpg|jpeg|png|gif|mp4|zip|rar)$/i.test(entry.name)) {
-        seen.add(fullPath)
-        const displayName = entry.name.replace(/\.[^.]+$/, '')
-        items.push({
-          name: displayName,
-          path: fullPath,
-          type: 'Arquivo',
-          category: 'Desktop',
-        })
-      }
-    }
-  } catch {
-    /* skip */
-  }
+  walkUserFolder(deskDir, items, seen, 'Desktop', 3)
   return items
 }
 
@@ -381,6 +279,45 @@ function walkDir(dirPath, items, seen, defaultType, maxDepth) {
         path: fullPath,
         type: entry.name.endsWith('.lnk') ? 'Atalho' : 'Programa',
         category: inferCategory(displayName, dirPath),
+      })
+    }
+  }
+}
+
+const DOC_FILE_RE = /\.(docx?|xlsx?|pptx?|pdf|txt|md|csv|json|xml|jpg|jpeg|png|gif|mp4|mkv|mp3|wav|zip|rar|7z)$/i
+
+function walkUserFolder(dirPath, items, seen, category, maxDepth) {
+  if (maxDepth <= 0) return
+
+  let entries
+  try {
+    entries = fs.readdirSync(dirPath, { withFileTypes: true })
+  } catch {
+    return
+  }
+
+  for (const entry of entries) {
+    const fullPath = path.join(dirPath, entry.name)
+    if (seen.has(fullPath)) continue
+
+    if (entry.isDirectory()) {
+      seen.add(fullPath)
+      if (entry.name.startsWith('.') || entry.name === 'AppData') continue
+      items.push({
+        name: entry.name,
+        path: fullPath,
+        type: 'Pasta',
+        category,
+      })
+      walkUserFolder(fullPath, items, seen, category, maxDepth - 1)
+    } else if (DOC_FILE_RE.test(entry.name)) {
+      seen.add(fullPath)
+      const displayName = entry.name.replace(/\.[^.]+$/, '')
+      items.push({
+        name: displayName,
+        path: fullPath,
+        type: 'Arquivo',
+        category,
       })
     }
   }
