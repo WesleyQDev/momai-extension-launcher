@@ -681,7 +681,7 @@ function extractSearchTerms(raw) {
     /^(procure|procurar|procura o|procura a)\s+/i,
     /^(localize|localizar|localiza o|localiza a)\s+/i,
     /^(mostre|mostrar|mostra o|mostra a)\s+/i,
-    /\b(o|a|os|as|de|da|do|dos|das|em|no|na|nos|nas|um|uma|para|por|pelo|pela)\b\s*/gi,
+    /(?<!\w)(o|a|os|as|de|da|do|dos|das|em|no|na|nos|nas|um|uma|para|por|pelo|pela)\b\s*/gi,
     /\b(pasta|folder|diretorio|diretorio|arquivo|file|programa|aplicativo|app)\b\s*/gi,
     /\b(me|mim|eu|por favor|pfv|pf)\b\s*/gi,
     /[\s,;:!?]+/g,
