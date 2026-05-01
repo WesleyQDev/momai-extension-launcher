@@ -736,12 +736,12 @@ function buildOpenedCardPayload(itemName, itemPath) {
 module.exports = {
   tools: [
     {
-      name: 'search_programs',
-      description: 'Busca programas, aplicativos, pastas e arquivos no computador por nome. Retorna resultados similares com score de confianca.',
+      name: 'search_local_items',
+      description: 'Busca pastas, arquivos, programas e aplicativos no computador local por nome. Usar para abrir ou encontrar qualquer item no computador. Retorna caminhos absolutos com score de confianca.',
     },
     {
-      name: 'open_program',
-      description: 'Abre um programa, pasta ou arquivo pelo caminho absoluto retornado pelo search_programs.',
+      name: 'open_local_item',
+      description: 'Abre pasta, arquivo ou programa pelo caminho absoluto. Use APENAS com caminho absoluto retornado pelo search_local_items.',
       parameters: {
         type: 'object',
         required: ['path'],
@@ -756,14 +756,14 @@ module.exports = {
   async execute({ content, args, toolName }) {
     const text = String(content || '').trim()
 
-    /* ── open_program ── */
-    if (toolName === 'open_program') {
+    /* ── open_local_item ── */
+    if (toolName === 'open_local_item') {
       const targetPath = String(args?.path || '').trim()
       const targetName = String(args?.name || path.basename(targetPath)).trim()
 
       if (!targetPath) {
         return {
-          tool: 'open_program',
+          tool: 'open_local_item',
           instruction: 'Caminho do item nao fornecido.',
         }
       }
@@ -771,19 +771,19 @@ module.exports = {
       const result = await openItem(targetPath)
       if (result.ok) {
         return {
-          tool: 'open_program',
+          tool: 'open_local_item',
           structuredResponse: buildOpenedCardPayload(targetName, targetPath),
           instruction: JSON.stringify({ ok: true, message: `"${targetName}" aberto com sucesso.`, path: targetPath }),
         }
       }
       return {
-        tool: 'open_program',
+        tool: 'open_local_item',
         instruction: `Nao foi possivel abrir: ${result.error}`,
       }
     }
 
-    /* ── search_programs ── */
-    const query = toolName === 'search_programs' ? (String(args?.query || content || '')).trim() : text
+    /* ── search_local_items ── */
+    const query = toolName === 'search_local_items' ? (String(args?.query || content || '')).trim() : text
     const allItems = getOrRefreshIndex()
 
     const scored = allItems
@@ -794,7 +794,7 @@ module.exports = {
 
     if (scored.length === 0) {
       return {
-        tool: 'search_programs',
+        tool: 'search_local_items',
         instruction: `Nenhum resultado encontrado para "${query}".`,
       }
     }
@@ -809,7 +809,7 @@ module.exports = {
         const result = await openItem(perfectMatch.path)
         if (result.ok) {
           return {
-            tool: 'search_programs',
+            tool: 'search_local_items',
             structuredResponse: buildOpenedCardPayload(perfectMatch.name, perfectMatch.path),
             instruction: JSON.stringify({ ok: true, message: `"${perfectMatch.name}" encontrado e aberto automaticamente.`, path: perfectMatch.path }),
           }
@@ -818,7 +818,7 @@ module.exports = {
     }
 
     return {
-      tool: 'search_programs',
+      tool: 'search_local_items',
       structuredResponse: buildCardPayload(query, scored),
       instruction: JSON.stringify({
         results: scored.map((item) => ({ name: item.name, path: item.path, type: item.type, category: item.category, score: Math.round(item.score * 100) / 100 })),
