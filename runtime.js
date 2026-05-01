@@ -709,6 +709,13 @@ module.exports = {
     {
       name: 'search_local_items',
       description: 'Busca pastas, arquivos, programas e aplicativos no computador local por nome. Usar para abrir ou encontrar qualquer item no computador. Retorna caminhos absolutos com score de confianca.',
+      parameters: {
+        type: 'object',
+        required: ['query'],
+        properties: {
+          query: { type: 'string', description: 'Nome ou termo do item a buscar (pasta, arquivo ou programa)' },
+        },
+      },
     },
     {
       name: 'open_local_item',
