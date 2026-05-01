@@ -733,6 +733,40 @@ function buildOpenedCardPayload(itemName, itemPath) {
    Module Exports
    ────────────────────────────────────────────── */
 
+function extractSearchTerms(raw) {
+  const q = String(raw || '').trim()
+  const removePatterns = [
+    /^(abra|abrir|abra o|abra a|abre|abre o|abre a)\s+/i,
+    /^(abrir o|abrir a|abrir)\s+/i,
+    /^(executar|iniciar|run|launch|start|open)\s+/i,
+    /^(busque|buscar|busca o|busca a|busca)\s+/i,
+    /^(encontre|encontrar|encontra o|encontra a)\s+/i,
+    /^(procure|procurar|procura o|procura a)\s+/i,
+    /^(localize|localizar|localiza o|localiza a)\s+/i,
+    /^(mostre|mostrar|mostra o|mostra a)\s+/i,
+    /\b(o|a|os|as|de|da|do|dos|das|em|no|na|nos|nas|um|uma|para|por|pelo|pela)\b\s*/gi,
+    /\b(pasta|folder|diretorio|diretorio|arquivo|file|programa|aplicativo|app)\b\s*/gi,
+    /\b(me|mim|eu|por favor|pfv|pf)\b\s*/gi,
+    /[\s,;:!?]+/g,
+  ]
+  let cleaned = q
+  for (const pattern of removePatterns) {
+    cleaned = cleaned.replace(pattern, ' ').trim()
+  }
+  return cleaned || q
+}
+
+async function debugLog(msg, momai) {
+  try {
+    if (momai?.log) momai.log(msg)
+    else console.log(`[launcher] ${msg}`)
+  } catch {}
+}
+
+/* ──────────────────────────────────────────────
+   Module Exports
+   ────────────────────────────────────────────── */
+
 module.exports = {
   tools: [
     {
@@ -753,8 +787,9 @@ module.exports = {
     },
   ],
 
-  async execute({ content, args, toolName }) {
+  async execute({ content, args, toolName, momai }) {
     const text = String(content || '').trim()
+    await debugLog(`execute called: toolName=${toolName}, text="${text.slice(0, 80)}"`, momai)
 
     /* ── open_local_item ── */
     if (toolName === 'open_local_item') {
@@ -783,19 +818,29 @@ module.exports = {
     }
 
     /* ── search_local_items ── */
-    const query = toolName === 'search_local_items' ? (String(args?.query || content || '')).trim() : text
+    const rawQuery = toolName === 'search_local_items' ? (String(args?.query || content || '')).trim() : text
+    const searchTerms = extractSearchTerms(rawQuery)
+    await debugLog(`search: raw="${rawQuery.slice(0, 80)}" terms="${searchTerms.slice(0, 80)}"`, momai)
+
     const allItems = getOrRefreshIndex()
+    await debugLog(`scan: total=${allItems.length} items in index`, momai)
 
     const scored = allItems
-      .map((item) => ({ ...item, score: scoreItem(item, query) }))
+      .map((item) => ({ ...item, score: scoreItem(item, searchTerms) }))
       .filter((item) => item.score > 0.1)
       .sort((a, b) => b.score - a.score)
       .slice(0, 20)
 
+    await debugLog(`scored: ${scored.length} results after filtering (threshold=0.1)`, momai)
+    if (scored.length > 0) {
+      const top3 = scored.slice(0, 3).map(i => `${i.name}(${Math.round(i.score*100)}% ${i.type})`).join(', ')
+      await debugLog(`top: ${top3}`, momai)
+    }
+
     if (scored.length === 0) {
       return {
         tool: 'search_local_items',
-        instruction: `Nenhum resultado encontrado para "${query}".`,
+        instruction: `Nenhum resultado encontrado para "${rawQuery}".`,
       }
     }
 
@@ -803,7 +848,7 @@ module.exports = {
        1. User explicitly says "abra X" / "abrir X" (isExplicitOpenQuery)
        2. AND there is a PERFECT match (score === 1.0)
        Otherwise, show results and ask the user which one to open. */
-    if (isExplicitOpenQuery(query)) {
+    if (isExplicitOpenQuery(rawQuery)) {
       const perfectMatch = scored.find((item) => item.score >= 1.0)
       if (perfectMatch) {
         const result = await openItem(perfectMatch.path)
@@ -819,13 +864,13 @@ module.exports = {
 
     return {
       tool: 'search_local_items',
-      structuredResponse: buildCardPayload(query, scored),
+      structuredResponse: buildCardPayload(rawQuery, scored),
       instruction: JSON.stringify({
         results: scored.map((item) => ({ name: item.name, path: item.path, type: item.type, category: item.category, score: Math.round(item.score * 100) / 100 })),
         total: scored.length,
         message: scored.length === 1
-          ? `Encontrado 1 resultado para "${query}". Deseja que eu abra?`
-          : `Encontrados ${scored.length} resultados para "${query}". Qual deles deseja abrir?`,
+          ? `Encontrado 1 resultado para "${rawQuery}". Deseja que eu abra?`
+          : `Encontrados ${scored.length} resultados para "${rawQuery}". Qual deles deseja abrir?`,
       }),
     }
   },
