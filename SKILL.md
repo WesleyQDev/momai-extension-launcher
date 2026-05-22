@@ -1,7 +1,7 @@
 ---
 name: launcher
 description: Abre programas, aplicativos e pastas no computador. Busca no menu iniciar, desktop, Program Files e PATH do sistema. Use quando o usuario pedir para abrir, executar ou iniciar qualquer programa ou pasta.
-icon: RocketLaunch
+icon: launcher
 tags:
   - sistema
   - launcher
