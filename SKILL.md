@@ -7,7 +7,7 @@ tags:
   - launcher
   - arquivos
 author: WesleyQDev
-repo: WesleyQDev/momai-extension-launcher
+repo: WesleyQDev/momai-open
 version: 1.0.0
 intents:
   - abrir

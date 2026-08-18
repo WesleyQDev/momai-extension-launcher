@@ -541,7 +541,7 @@ function scoreNameMatch(nameNorm, q, vocab) {
 const openedInSession = new Set()
 
 function openItem(itemPath) {
-  return new Promise((resolve) => {
+  return new Promise<any>((resolve) => {
     const normalized = path.resolve(String(itemPath || '').trim())
     if (!normalized) return resolve({ ok: false, error: 'Caminho vazio' })
     if (!fs.existsSync(normalized)) return resolve({ ok: false, error: 'Caminho nao encontrado no disco' })
@@ -632,7 +632,7 @@ function buildCardPayload(query, scored) {
 
   let subtitle = `${scored.length} ${scored.length === 1 ? 'item encontrado' : 'itens encontrados'}`
   if (folderQuery) subtitle = `${folderCount} pasta${folderCount !== 1 ? 's' : ''} encontrada${folderCount !== 1 ? 's' : ''}`
-  else if (fileQuery) subtitle = `${fileCount} arquivo${fileCount !== 1 ? 's' : ''} encontrado${fileCount !== 1 ? 's' : ''}`
+  else if (isFileQuery(query)) subtitle = `${fileCount} arquivo${fileCount !== 1 ? 's' : ''} encontrado${fileCount !== 1 ? 's' : ''}`
 
   return {
     type: 'generic-extension',
@@ -818,4 +818,19 @@ module.exports = {
       }),
     }
   },
+}
+
+/* Funções puras exportadas apenas para testes unitários (sem I/O).
+   O host lê apenas `.tools` e `.execute`; este campo é aditivo e não
+   altera o comportamento de runtime. */
+module.exports.__internals = {
+  normalizeAccents,
+  buildVocabulary,
+  filterQueryWords,
+  scoreNameMatch,
+  extractSearchTerms,
+  inferCategory,
+  isFolderQuery,
+  isFileQuery,
+  isExplicitOpenQuery,
 }
