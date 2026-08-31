@@ -1,6 +1,6 @@
-{
-  "name": "momai-launcher-extension",
-  "version": "1.1.0",
+﻿{
+  "name": "momai-open",
+  "version": "1.1.1",
   "private": true,
   "description": "Launcher skill for MomAI: open programs, folders and files on the local machine.",
   "type": "commonjs",
@@ -13,3 +13,4 @@
     "vitest": "^4.1.9"
   }
 }
+

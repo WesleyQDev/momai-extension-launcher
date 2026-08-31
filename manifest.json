@@ -1,7 +1,7 @@
-{
-  "id": "launcher",
-  "name": "Launcher de Programas",
-  "version": "1.1.0",
+﻿{
+  "id": "momai-open",
+  "name": "MomAI Open",
+  "version": "1.1.1",
   "kind": "packaged",
   "description": "Abre programas, aplicativos e pastas no computador. Busca no menu iniciar, desktop, Program Files e PATH do sistema.",
   "icon_bg": "#0066CC",
@@ -19,3 +19,4 @@
     "accent": "blue"
   }
 }
+
