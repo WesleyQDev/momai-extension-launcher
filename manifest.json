@@ -13,10 +13,36 @@
   "api": {
     "actions": ["/launcher/open"]
   },
+  "repo": "WesleyQDev/momai-open",
   "permissions": ["filesystem:read", "process:spawn"],
   "theme": {
     "gradient": "from-blue-500 to-indigo-600",
     "accent": "blue"
-  }
+  },
+  "tools": [
+    {
+      "name": "search_local_items",
+      "description": "Busca pastas, arquivos, programas e aplicativos no computador local por nome. Usar para abrir ou encontrar qualquer item no computador. Retorna caminhos absolutos com score de confianca.",
+      "parameters": {
+        "type": "object",
+        "required": ["query"],
+        "properties": {
+          "query": { "type": "string", "description": "Nome ou termo do item a buscar (pasta, arquivo ou programa)" }
+        }
+      }
+    },
+    {
+      "name": "open_local_item",
+      "description": "Abre pasta, arquivo ou programa pelo caminho absoluto. Use APENAS com caminho absoluto retornado pelo search_local_items.",
+      "parameters": {
+        "type": "object",
+        "required": ["path"],
+        "properties": {
+          "path": { "type": "string", "description": "Caminho absoluto do item" },
+          "name": { "type": "string", "description": "Nome do item para confirmacao" }
+        }
+      }
+    }
+  ]
 }
 
