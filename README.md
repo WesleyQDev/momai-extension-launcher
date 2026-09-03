@@ -1,17 +1,26 @@
-# Abrir Aplicativos e Pastas (Extensão)
+# MomAI Open
 
-Esta extensão permite que a MomAI abra programas, aplicativos e pastas diretamente no seu computador. É ideal para economizar tempo ao iniciar suas ferramentas de trabalho ou encontrar pastas importantes.
+A extensão MomAI Open permite que a sua assistente abra aplicativos, programas, pastas e arquivos no seu computador através de pedidos naturais por voz ou texto.
 
-### O que ela faz por você:
-*   **Abre Programas**: Inicie qualquer aplicativo pelo nome (ex: "abra o Chrome", "inicie o Spotify").
-*   **Encontra Pastas**: Abre diretórios do seu computador rapidamente (ex: "abra minha pasta de Downloads").
-*   **Busca Automática**: Ela procura nos locais onde seus programas costumam ficar instalados para que você não precise digitar o caminho completo.
+## Agilidade para abrir tudo no seu computador
 
-### Exemplos do que você pode pedir:
+Em vez de procurar ícones na área de trabalho ou navegar por diversas pastas, basta dizer o que você precisa e a MomAI cuida do resto para você em um instante.
+
+### Principais Recursos
+
+- **Abertura Rápida de Aplicativos**: Inicie qualquer programa instalado pelo nome, como seu navegador de internet, tocador de música ou ferramentas de edição.
+- **Acesso Direto a Pastas**: Abra pastas comuns do sistema (como Downloads, Documentos ou Imagens) ou suas próprias pastas pessoais sem complicação.
+- **Busca Inteligente**: A assistente localiza os programas automaticamente nos diretórios habituais do Windows, sem que você precise saber o caminho exato do arquivo.
+- **Confirmação Clara**: Se houver mais de um programa com nome semelhante, a MomAI pergunta com clareza qual deles você deseja iniciar antes de abrir.
+
+## O que você pode pedir à MomAI
+
 - "Abra o navegador Google Chrome."
-- "Inicie o Visual Studio Code na minha pasta de documentos."
-- "Abra a pasta de Imagens."
-- "Executar a calculadora."
+- "Inicie o Spotify para eu ouvir música."
+- "Abra a minha pasta de Downloads."
+- "Abra a pasta Documentos."
+- "Abra a calculadora do computador."
 
-### Segurança:
-Esta extensão só abre itens que você pedir explicitamente e respeita as permissões do seu usuário no Windows. Se ela encontrar mais de um programa com nome parecido, ela perguntará qual você deseja abrir.
+## Segurança e Privacidade
+
+A extensão MomAI Open opera exclusivamente de acordo com os seus pedidos expressos e respeita todas as permissões da sua conta de usuário no Windows. Nenhum programa ou pasta é executado em segundo plano sem a sua solicitação.
